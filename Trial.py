@@ -5,6 +5,7 @@ import seaborn as sns
 
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
+from sklearn.metrics import classification_report
 
 
 def WineQualityWhite():
@@ -12,28 +13,33 @@ def WineQualityWhite():
 
     # 3-6: Bad(0), 7-10: Good(1)
     df['quality'] = df['quality'].apply(lambda x: int(x<7))
-    #print(df.head())
+    # print(df.describe())
 
     y = df.pop("quality")
     X_train, X_test, y_train, y_test = train_test_split(df, y, test_size=.25)
 
     clf = SVC()
     clf.fit(X_train, y_train)
-    print("Accuracy for White Wine: ", clf.score(X_test, y_test))
+    y_pred = clf.predict(X_test)
+    print(classification_report(y_test, y_pred))
+
+    #print("Accuracy for White Wine: ", )
 
 def WineQualityRed():
     df = pd.read_csv('./winequality-red.csv', sep=';')
 
     # 3-6: Bad(0), 7-10: Good(1)
     df['quality'] = df['quality'].apply(lambda x: int(x<7))
-    #print(df.head())
+    # print(df.describe())
 
     y = df.pop("quality")
     X_train, X_test, y_train, y_test = train_test_split(df, y, test_size=.25)
 
     clf = SVC()
     clf.fit(X_train, y_train)
-    print("Accuracy for Red Wine: ", clf.score(X_test, y_test))
+    y_pred = clf.predict(X_test)
+    print(classification_report(y_test, y_pred))
+    # print("Accuracy for Red Wine: ", clf.score(X_test, y_test))
 
 WineQualityRed()
 WineQualityWhite()
