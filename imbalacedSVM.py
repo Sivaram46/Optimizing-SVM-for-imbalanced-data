@@ -20,17 +20,42 @@ class ImbalancedSVC(BaseSVC):
             random_state=random_state)
     
     def fit(self, X, y, sample_weight=None):
+
+        assert self.kernel == 'linear'
+
         clf = super().fit(X, y, sample_weight)
 
-        self.n_classes_ = np.zeros(clf.classes_.shape)
+        assert len(self.classes_) == 2
+
+        self.n_classes_ = np.zeros(clf.classes_.shape).astype(np.int16)
+        self.n_datapoints_ = X.shape[0]
         for i, c in enumerate(clf.classes_):
             self.n_classes_[i] = np.count_nonzero(y == c)
+
+        return self
         
 
     def predict(self, X):
-        alpha = self.intercept_ + 1
-        beta = self.intercept_ - 1
+        pos = np.cumsum(self.n_support_) - 1
 
-        intercept_new_ = (self.n_classes_[0] - self.n_classes_[1]) / (X.shape[0])
+        w_ = self.coef_[0][:-1]
+        wd = self.coef_[0][-1]
+        x_ = self.support_vectors_[pos[1]][:-1]
+        xd = self.support_vectors_[pos[1]][-1]
+
+        # bias of margin for positive class
+        alpha = xd + (w_ @ x_)/wd
+
+        x_ = self.support_vectors_[pos[0]][:-1]
+        xd = self.support_vectors_[pos[0]][-1]
+
+        # bias of margin of negative class
+        beta = xd + (w_ @ x_)/wd
+
+        # find new bias term 
+        intercept_new_ = -wd*((alpha*self.n_classes_[0] + beta*self.n_classes_[1])/(self.n_datapoints_))
+        self._intercept_ = np.array([intercept_new_])
+
+        # intercept_new_ = -wd*(alpha + beta)/2
 
         return (super().predict(X))
