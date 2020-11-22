@@ -20,7 +20,7 @@ class ImbalancedSVC(BaseSVC):
             random_state=random_state)
     
     def fit(self, X, y, sample_weight=None):
-
+        
         assert self.kernel == 'linear'
 
         clf = super().fit(X, y, sample_weight)
@@ -29,6 +29,8 @@ class ImbalancedSVC(BaseSVC):
 
         self.n_classes_ = np.zeros(clf.classes_.shape).astype(np.int16)
         self.n_datapoints_ = X.shape[0]
+        
+
         for i, c in enumerate(clf.classes_):
             self.n_classes_[i] = np.count_nonzero(y == c)
 
