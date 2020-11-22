@@ -35,11 +35,11 @@ def WineQualityRed():
     y = df.pop("quality")
     X_train, X_test, y_train, y_test = train_test_split(df, y, test_size=.25)
 
-    clf = SVC()
+    clf = SVC(class_weight={0:0.15, 1:0.85})
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
     print(classification_report(y_test, y_pred))
     # print("Accuracy for Red Wine: ", clf.score(X_test, y_test))
 
 WineQualityRed()
-WineQualityWhite()
+# WineQualityWhite()
