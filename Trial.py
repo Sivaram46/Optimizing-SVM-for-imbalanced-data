@@ -58,7 +58,7 @@ def WineQualityRed():
     # print(clf.decision_function(X_test))
     # print("Accuracy for Red Wine: ", clf.score(X_test, y_test))
 
-def Stacking():
+def Ensemble():
 
     df = pd.read_csv('./winequality-red.csv', sep=';')
 
@@ -68,16 +68,18 @@ def Stacking():
     X = df.values
 
     # Splitting the Real Dataset
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.25)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
 
     # Splitting the Training data into Training and Testing Again
-    X_train_train, X_train_test, y_train_train, y_train_test = train_test_split(X_train, y_train, test_size=0.70)
+    X_train_train, X_train_test, y_train_train, y_train_test = train_test_split(X_train, y_train, test_size=0.30)
 
-    rf = RandomForestClassifier(n_estimators=100, n_jobs=-1)
+    rf = RandomForestClassifier(n_estimators=80, n_jobs=-1)
     rf.fit(X_train_train, y_train_train)
     y_pred_probs = rf.predict_proba(X_train_test)
     # Indices of those RF not very confident in predicting
-    indices = [i for i, x in enumerate(y_pred_probs) if x[0]>=0.35 and x[0]<=0.65]
+    # We have a threshold of 0.15 here 
+    indices = (np.where(np.logical_and(y_pred_probs>=0.35, y_pred_probs<=0.65))[0])
+
 
     # Use SVM when RF not confident
     svm = SVC(kernel='linear')
@@ -90,8 +92,7 @@ def Stacking():
         # Return the prob for each class but as a 2d list
         proba = rf.predict_proba(data)
         # Taking only one, since we take only a specific range
-        prob = proba[0] # prob is a list with prob for each class
-        prob = prob[0]
+        prob = proba.flatten()[0] # prob is a list with prob for each class
         
         # If RF not confident in predicting the class, use SVM
         if(prob>=0.35 and prob<=0.65):
@@ -107,7 +108,8 @@ def Stacking():
 # print("\nWhite Wine")
 # WineQualityWhite()
 
-# print("Red Wine")
+# print("\nRed Wine")
 # WineQualityRed()
 
-Stacking()
+# print("\nEnsemble")
+# Ensemble()
