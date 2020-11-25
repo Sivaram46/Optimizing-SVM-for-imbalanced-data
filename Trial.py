@@ -62,7 +62,7 @@ def Ensemble():
 
     df = pd.read_csv('./winequality-red.csv', sep=';')
 
-    # 3-6: Bad(0), 7-10: Good(1)
+    # 3-6: Bad(1), 7-10: Good(0)
     df['quality'] = df['quality'].apply(lambda x: int(x<7))
     y = df.pop("quality")
     X = df.values
@@ -78,7 +78,7 @@ def Ensemble():
     y_pred_probs = rf.predict_proba(X_train_test)
     # Indices of those RF not very confident in predicting
     # We have a threshold of 0.15 here 
-    indices = (np.where(np.logical_and(y_pred_probs>=0.35, y_pred_probs<=0.65))[0])
+    indices = (np.where(np.logical_and(y_pred_probs>=0.30, y_pred_probs<=0.70))[0])
 
 
     # Use SVM when RF not confident
@@ -95,7 +95,7 @@ def Ensemble():
         prob = proba.flatten()[0] # prob is a list with prob for each class
         
         # If RF not confident in predicting the class, use SVM
-        if(prob>=0.35 and prob<=0.65):
+        if(prob>=0.30 and prob<=0.70):
             prediction = svm.predict(data)
             y_pred.append(prediction)
         # If RF confident, go with the prediction
@@ -113,3 +113,4 @@ def Ensemble():
 
 # print("\nEnsemble")
 # Ensemble()
+
